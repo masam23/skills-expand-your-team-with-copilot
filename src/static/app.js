@@ -539,7 +539,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ${
                 currentUser
                   ? `
-                <span class="delete-participant tooltip" data-activity="${name}" data-email="${email}">
+                <span class="delete-participant tooltip" data-activity="${escapeHtml(name)}" data-email="${email}">
                   ✖
                   <span class="tooltip-text">Unregister this student</span>
                 </span>
@@ -555,13 +555,13 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="social-sharing">
         <span class="share-label">Share this activity:</span>
         <div class="share-buttons">
-          <button class="share-button twitter" data-activity="${name}" data-description="${details.description.replace(/"/g, '&quot;')}" title="Share on Twitter">
+          <button class="share-button twitter" data-activity="${escapeHtml(name)}" data-description="${escapeHtml(details.description)}" title="Share on Twitter">
             <span class="share-icon">🐦</span>
           </button>
-          <button class="share-button facebook" data-activity="${name}" data-description="${details.description.replace(/"/g, '&quot;')}" title="Share on Facebook">
+          <button class="share-button facebook" data-activity="${escapeHtml(name)}" data-description="${escapeHtml(details.description)}" title="Share on Facebook">
             <span class="share-icon">📘</span>
           </button>
-          <button class="share-button email" data-activity="${name}" data-description="${details.description.replace(/"/g, '&quot;')}" data-schedule="${formattedSchedule.replace(/"/g, '&quot;')}" title="Share via Email">
+          <button class="share-button email" data-activity="${escapeHtml(name)}" data-description="${escapeHtml(details.description)}" data-schedule="${escapeHtml(formattedSchedule)}" title="Share via Email">
             <span class="share-icon">✉️</span>
           </button>
         </div>
@@ -819,12 +819,23 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
+  // Utility function to escape HTML special characters
+  function escapeHtml(text) {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
   // Handle social sharing
   function handleShare(event) {
     const button = event.currentTarget;
     const activityName = button.dataset.activity;
     const description = button.dataset.description;
-    const schedule = button.dataset.schedule || '';
     
     // Get the current page URL
     const pageUrl = window.location.href;
@@ -837,20 +848,25 @@ document.addEventListener("DOMContentLoaded", () => {
       // Twitter sharing
       const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(pageUrl)}`;
       window.open(twitterUrl, '_blank', 'width=550,height=420');
+      showMessage(`Opening Twitter to share "${activityName}"`, 'info');
     } else if (button.classList.contains('facebook')) {
       // Facebook sharing
       const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}&quote=${encodeURIComponent(shareText)}`;
       window.open(facebookUrl, '_blank', 'width=550,height=420');
+      showMessage(`Opening Facebook to share "${activityName}"`, 'info');
     } else if (button.classList.contains('email')) {
-      // Email sharing
+      // Email sharing - get schedule from button data attribute
+      const schedule = button.dataset.schedule || '';
       const emailSubject = `Activity at Mergington High School: ${activityName}`;
       const emailBody = `Hi,\n\nI wanted to share this activity with you:\n\n${activityName}\n${description}\n\nSchedule: ${schedule}\n\nCheck it out here: ${pageUrl}\n\nBest regards`;
       const mailtoUrl = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-      window.location.href = mailtoUrl;
+      
+      // Create a temporary link and click it to avoid navigation issues
+      const link = document.createElement('a');
+      link.href = mailtoUrl;
+      link.click();
+      showMessage(`Opening email client to share "${activityName}"`, 'info');
     }
-    
-    // Show a confirmation message
-    showMessage(`Sharing "${activityName}"...`, 'info');
   }
 
   // Show message function
