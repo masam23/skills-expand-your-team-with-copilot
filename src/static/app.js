@@ -56,14 +56,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateDarkModeButton(isDarkMode) {
     const icon = darkModeToggle.querySelector(".toggle-icon");
-    const text = darkModeToggle.querySelector("span:last-child");
+    const text = darkModeToggle.querySelector(".toggle-text");
     
     if (isDarkMode) {
       icon.textContent = "☀️";
       text.textContent = "Light Mode";
+      darkModeToggle.setAttribute("aria-label", "Toggle light mode");
     } else {
       icon.textContent = "🌙";
       text.textContent = "Dark Mode";
+      darkModeToggle.setAttribute("aria-label", "Toggle dark mode");
     }
   }
 
