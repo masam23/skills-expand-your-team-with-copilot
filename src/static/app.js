@@ -8,6 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const activityInput = document.getElementById("activity");
   const closeRegistrationModal = document.querySelector(".close-modal");
 
+  // Dark mode toggle element
+  const darkModeToggle = document.getElementById("dark-mode-toggle");
+
   // Search and filter elements
   const searchInput = document.getElementById("activity-search");
   const searchButton = document.getElementById("search-button");
@@ -43,6 +46,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Authentication state
   let currentUser = null;
+
+  // Dark mode functions
+  function toggleDarkMode() {
+    const isDarkMode = document.body.classList.toggle("dark-mode");
+    localStorage.setItem("darkMode", isDarkMode ? "enabled" : "disabled");
+    updateDarkModeButton(isDarkMode);
+  }
+
+  function updateDarkModeButton(isDarkMode) {
+    const icon = darkModeToggle.querySelector(".toggle-icon");
+    const text = darkModeToggle.querySelector("span:last-child");
+    
+    if (isDarkMode) {
+      icon.textContent = "☀️";
+      text.textContent = "Light Mode";
+    } else {
+      icon.textContent = "🌙";
+      text.textContent = "Dark Mode";
+    }
+  }
+
+  function initializeDarkMode() {
+    const darkModeSetting = localStorage.getItem("darkMode");
+    if (darkModeSetting === "enabled") {
+      document.body.classList.add("dark-mode");
+      updateDarkModeButton(true);
+    }
+  }
 
   // Time range mappings for the dropdown
   const timeRanges = {
@@ -238,6 +269,9 @@ document.addEventListener("DOMContentLoaded", () => {
   loginButton.addEventListener("click", openLoginModal);
   logoutButton.addEventListener("click", logout);
   closeLoginModal.addEventListener("click", closeLoginModalHandler);
+
+  // Event listener for dark mode toggle
+  darkModeToggle.addEventListener("click", toggleDarkMode);
 
   // Close login modal when clicking outside
   window.addEventListener("click", (event) => {
@@ -862,6 +896,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Initialize app
+  initializeDarkMode();
   checkAuthentication();
   initializeFilters();
   fetchActivities();
